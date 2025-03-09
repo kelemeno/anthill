@@ -1,0 +1,9 @@
+[submodule "anthill-contracts"]
+	path = anthill-contracts
+	url = https://github.com/kelemeno/anthill-contracts.git
+[submodule "anthill-backend"]
+	path = anthill-backend
+	url = https://github.com/kelemeno/anthill-backend.git
+[submodule "anthill-frontend"]
+	path = anthill-frontend
+	url = https://github.com/kelemeno/anthill-frontend.git
