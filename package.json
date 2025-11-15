@@ -1,0 +1,28 @@
+{
+  "name": "anthill",
+  "version": "1.0.0",
+  "description": "a liquid reputation system",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "test",
+    "c": "npm run --workspace=anthill-contracts",
+    "f": "npm run --workspace=anthill-frontend",
+    "b": "npm run --workspace=anthill-backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kelemeno/anthill.git"
+  },
+  "author": "kelemeno",
+  "workspaces": [
+      "anthill-contracts",
+      "anthill-frontend",
+      "anthill-backend"
+    ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kelemeno/anthill/issues"
+  },
+  "homepage": "https://github.com/kelemeno/anthill#readme"
+}
