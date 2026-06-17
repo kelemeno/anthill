@@ -1,0 +1,4 @@
+packages:
+  - "anthill-contracts"
+  - "anthill-backend"
+  - "anthill-frontend"

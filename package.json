@@ -5,21 +5,21 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "test",
-    "c": "npm run --workspace=anthill-contracts",
-    "f": "npm run --workspace=anthill-frontend",
-    "b": "npm run --workspace=anthill-backend"
+    "test": "pnpm --filter anthill-frontend test",
+    "c": "pnpm --filter anthill-contracts run",
+    "f": "pnpm --filter anthill-frontend run",
+    "b": "pnpm --filter anthill-backend run",
+    "lint": "biome lint .",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kelemeno/anthill.git"
   },
   "author": "kelemeno",
-  "workspaces": [
-      "anthill-contracts",
-      "anthill-frontend",
-      "anthill-backend"
-    ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kelemeno/anthill/issues"
