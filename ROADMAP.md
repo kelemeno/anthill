@@ -41,6 +41,18 @@ before any Solidity is written.
   localhost-only.
   - `anthill-frontend/src/main.tsx` (`anthillContractAddress` TODO), backend config.
 
+- **SSO / social login (no browser wallet)** — **M**
+  Let people sign in with email or a social account (Google/Apple/etc.) instead
+  of needing MetaMask or a browser wallet — the wallet-install step is the
+  biggest onboarding drop-off for non-crypto users. We already use Reown AppKit,
+  which supports **email + social login backed by an embedded wallet**, so this
+  is mostly enabling/configuring AppKit's auth (set up a project with the social
+  providers, turn on the embedded-wallet/email connectors in `createAppKit`)
+  rather than new contract work — the embedded wallet signs transactions like any
+  other account. Gas for those accounts still needs a story (faucet on testnet,
+  or a paymaster / sponsored transactions later).
+  - `anthill-frontend/src/main.tsx` (AppKit config), provider/project setup.
+
 - **CI & backend testing** — **M** — incl. backend **#2**, contracts **#11** (testing note)
   The e2e + on-chain integration tests need a running anvil + backend, so there's
   no hermetic CI yet. Add a workflow that boots anvil, deploys/seeds, runs the
