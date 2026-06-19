@@ -21,13 +21,14 @@ Repo layout: a superproject with three submodules — `anthill-contracts`
 The visualisation is in good shape; the gap is making it usable end-to-end,
 especially on a phone.
 
-- **Mobile actions (touch popover)** — **M** — finishes frontend **#6**
-  The node popover (join / vote / rename / leave / switch / move) is driven by
-  hover (`mouseenter`), which real touch devices never fire. So on a phone you
-  can navigate and drill, but you **cannot act**. Wire the popover to open on a
-  real tap (the mobile e2e test for it is currently skipped — un-skip it).
-  - File: `anthill-frontend/src/Graph/GraphSVG/GraphSVG.tsx`, `GraphFlow.tsx`
-  - Test: `anthill-frontend/e2e/mobile.spec.ts` (`test.skip` → enable)
+- ✅ **Mobile actions (touch popover)** — **done** — completes frontend **#6**
+  On touch a tap now opens the node popover (info + join/vote/rename/leave/
+  switch/move) via a real pointerup handler; tap empty space to dismiss, drill
+  via the +N badge. So a phone can finally *act*, not just browse.
+
+The next major direction is **Proof-of-Humanity + on-chain voting** (see the
+dedicated sections below) — these are contract changes and need design sign-off
+before any Solidity is written.
 
 ---
 
@@ -68,9 +69,8 @@ especially on a phone.
   don't exist). Also the script TODOs in `anthill-contracts/script/AnthillLegacy.s.sol`
   (single-node + all-nodes recalculation).
 
-- **Proof-of-Humanity beta** — **L** — contracts **#12**
-  Integrate freeze-person + remove-by-leader, and investigate an on-chain voting
-  override (is easy on-chain voting feasible?). A governance/anti-sybil direction.
+- **Proof-of-Humanity + on-chain voting** — **L** — contracts **#12**
+  Now a first-class direction with its own sections below.
 
 - **Scale / large-graph navigation** — **M/L** — frontend **#7**
   Stress-test large graphs (React Flow virtualises above ~300 nodes; there's a
@@ -85,6 +85,73 @@ especially on a phone.
 
 ---
 
+## Proof-of-Humanity (PoH) — contracts #12
+
+**Goal:** an anti-sybil / governance layer so the tree reflects real, unique
+people, and bad actors can be frozen or removed. Today the contract is purely
+`onlyVoter` (you can only act on your own node) — there is no leader, admin, or
+freeze concept, so this is all new mechanics in `anthill-contracts/src/Anthill.sol`.
+
+**Proposed pieces**
+- **Freeze a person** — a `frozen[address]` flag. A frozen node keeps its tree
+  position but is blocked from acting (`addDagVote`, `moveTreeVote`,
+  `switchPositionWithParent`, …) and/or excluded from reputation. Emits
+  `Frozen` / `Unfrozen` events.
+- **Remove by leader** — a leader can evict a node from the tree (reusing
+  `handleLeavingVoterBranch` / `leaveTree` internals). Emits an event.
+- **Access control** — define who a "leader" is (see open questions) and add an
+  `onlyLeaderOf(voter)` modifier.
+
+**Open questions (need answers before Solidity)**
+1. **Who is a "leader"?** The node's tree parent? Any ancestor within the
+   reputation proximity? The root? A separately-appointed admin/multisig?
+2. **What does "freeze" disable** — just actions, or also exclude the node from
+   reputation totals? Is there an unfreeze / appeal path?
+3. **Removal effects** — does removing re-parent the children (pull-up, like
+   `leaveTree`), or remove the whole subtree?
+4. **Abuse guard** — what stops a leader freezing/removing arbitrarily (time
+   lock, vote, reciprocity)?
+
+**Sub-tasks (once design is set):** contract state + functions + modifier +
+events; tests (`anthill-contracts/test`); backend to surface `frozen` and emit
+the new events into the graph; frontend to show frozen state + leader actions in
+the popover.
+
+---
+
+## On-chain voting — contracts #12
+
+**Goal:** let the system make collective decisions on-chain, weighted by
+reputation — and explore the "voting override" the issue mentions. The issue is
+explicitly a feasibility question: *"is it possible to easily implement on-chain
+voting?"*
+
+**Proposed pieces**
+- **Proposal + ballot model** — create a proposal, cast votes, tally. Vote
+  weight = a voter's reputation (we already have `calculateReputation`).
+- **What's votable?** Candidate first targets: freezing/removing a person
+  (ties into PoH above), or protocol parameters (e.g. `MAX_REL_ROOT_DEPTH`).
+- **"Override"** — clarify intent: override an individual's dag votes by
+  collective decision, or a general governance override of an action?
+
+**Open questions (need answers before Solidity)**
+1. **What gets voted on first** — PoH actions (freeze/remove) or parameters?
+2. **Weighting + quorum** — reputation-weighted; what threshold/quorum, and over
+   what time window? (Reputation is expensive to compute on-chain — likely use
+   the cached `calculatedReputationForEpoch`.)
+3. **What does "override" mean** concretely?
+4. **Cost** — on-chain tallies over many voters are gas-heavy; may need the same
+   backend-orders-nodes trick as reputation recalculation (backend #6).
+
+**Sub-tasks (once design is set):** proposal/vote structs + functions + events;
+reputation-as-weight integration; tests; backend + frontend surfaces.
+
+> These two are intertwined (voting is the natural governance mechanism for PoH
+> freeze/remove). Recommend designing them together. **Next step: answer the open
+> questions above, then I'll write the contract + tests.**
+
+---
+
 ## Recently done (context)
 
 These close several GitHub issues — listed so they can be closed out:
@@ -94,8 +161,9 @@ These close several GitHub issues — listed so they can be closed out:
 - History scrubber scoped to the focused node **and** the active view, with
   prev/next/play controls; the overlay animates during playback.
   → closes backend **#4**, contracts **#11** (display how the graph changed).
-- Mobile-responsive layout + LAN access for on-device testing → progresses
-  frontend **#6**; three-levels-by-default → contracts **#7** (partial).
+- Mobile-responsive layout, LAN access for on-device testing, and tap-to-open
+  node actions → closes frontend **#6**; three-levels-by-default → contracts
+  **#7** (partial).
 - In-app tutorial (6-step walkthrough) → closes frontend **#2**.
 - Backend on Hono + WebSockets → closes backend **#3**, contracts **#4**.
 - UI polish (header/footer, segmented toggle, weighted/coloured edges) →
