@@ -91,6 +91,26 @@ before any Solidity is written.
   keeping the clickedNode away from the viewport edge for graphs too big to fit —
   partly covered now by pan/zoom + the 3-level collapse.
 
+- **Graph interaction polish** — **M** — frontend
+  Three follow-ups on the drag/layout/animation feel:
+  - **Natural drag resistance.** The drag-wiggle is clamped to a small box, so a
+    node hits the cap and stops abruptly. Replace the hard clamp with progressive
+    resistance — the further you pull, the more it resists (asymptotic / rubber-
+    band easing) — so it decelerates smoothly instead of slamming into a wall.
+    (`AnthillNodeView` pointer handlers in `anthill-frontend/src/Graph/GraphSVG/GraphFlow.tsx`.)
+  - **Keep the focus on a central vertical line.** The layout is fully fixed
+    (nice + stable), but drilling deep side branches drifts far horizontally.
+    Bias the layout so a node's two children open *towards the centre* (mirror
+    the subtree around the focus's vertical axis), keeping the active path roughly
+    vertical instead of wandering sideways. (Layout in `computeTreePositions` /
+    the d3-dag sugiyama setup; may need a custom coord assignment.)
+  - **Grow nodes out of their parent (big one).** When children appear (peek /
+    expand), animate them *growing/sliding out of the parent node's position*
+    rather than fading in where they land — and reverse on collapse. Likely a
+    per-node mount animation that starts at the parent's screen position/scale
+    and eases to its own (needs the parent position at mount; React Flow node
+    mount + a transform transition, or a layout-animation lib).
+
 - **Product polish** — open-ended
   Clearer join/vote flows, surfacing reputation magnitude (e.g. node size by rep),
   richer history labels, etc. (frontend **#5** "make it pretty" — largely done.)
