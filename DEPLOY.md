@@ -24,15 +24,16 @@ git add anthillSnapshot.json && git commit -m "Refresh demo snapshot"
 
 ## 2. Backend → Heroku (auto-builds from `main`)
 
+Snapshot mode is baked into the `Procfile` (`web: SNAPSHOT_MODE=true node
+build/App.js`), so **no config var is needed**. Deploy = put the code on `main`:
+
 ```bash
-# one-time: tell the dyno to run in snapshot mode (dashboard → Config Vars, or:)
-heroku config:set SNAPSHOT_MODE=true -a <heroku-app>
-# deploy = put the code on main (Heroku builds automatically):
 cd anthill-backend && git checkout main && git merge develop && git push origin main
 ```
 
-The backend serves **empty** until `SNAPSHOT_MODE=true` is set. Sanity check:
-`curl https://<heroku-app>.herokuapp.com/rootId` → `{"id":"0x…0002"}`.
+Sanity check: `curl https://<heroku-app>.herokuapp.com/rootId` → `{"id":"0x…0002"}`.
+(To make the Heroku backend read a real chain later, revert the Procfile and set
+`RPC_URL` / `CONTRACT_ADDRESS`.)
 
 ## 3. Frontend → Firebase (manual `firebase deploy`)
 
