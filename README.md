@@ -27,6 +27,18 @@ npm run start:dev --prefix anthill-backend   # :5001
 npm start --prefix anthill-frontend          # :5173
 ```
 
+What people can do besides the tree actions:
+
+- **Invites**: "Copy invite link" on your own node (or Invite someone in the account menu) makes a one-time link; whoever opens it joins under you, or the nearest free spot below you. `INVITE_ONLY=true` on the backend makes an invite required to join; until then anyone can still join at any free spot. `POST /admin/invites` (with `ADMIN_TOKEN`) makes an invite under any node, for bootstrapping.
+- **Polls** weighted by reputation: an option's weight is the total reputation of its voters; closing a poll freezes the result.
+- **Profiles**: a short bio and a link, shown on your node.
+- **Passkeys and recovery**: you can add passkeys for other devices; each account has a recovery code (shown once, replaced when used) that registers a new passkey if all are lost.
+- Greyed-out buttons say why an action isn't possible (the backend dry-runs it).
+
+Backups: `anthill-backend/scripts/backupLog.sh` downloads the log via `GET /admin/log` and keeps 30 daily copies in `~/anthill-backups`; put the backend's `ADMIN_TOKEN` in `~/.anthill-admin-token`.
+
+To try the signed-in UI locally without a passkey prompt, `npx tsx scripts/devSession.ts "Name"` (in `anthill-backend`) creates a test account on the local backend and prints a session to put in the browser's localStorage as `anthill.session`.
+
 Passkeys only work on localhost or https. For a deployment set `RP_ID` (the frontend's domain, e.g. `anthilldao.dev`) and `ORIGINS` (e.g. `https://anthilldao.dev`) on the backend, and give it a persistent disk for `DATA_DIR`.
 
 Checks:
