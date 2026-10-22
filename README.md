@@ -18,6 +18,28 @@ This is the repo for the smart contracts.
 
 ## development
 
+### off-chain (default)
+
+The backend holds the tree itself and people sign in with passkeys, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json`; set `SEED=empty` to start with an empty tree.
+
+```
+npm run start:dev --prefix anthill-backend   # :5001
+npm start --prefix anthill-frontend          # :5173
+```
+
+Passkeys only work on localhost or https. For a deployment set `RP_ID` (the frontend's domain, e.g. `anthilldao.dev`) and `ORIGINS` (e.g. `https://anthilldao.dev`) on the backend, and give it a persistent disk for `DATA_DIR`.
+
+Checks:
+
+- `npx tsx scripts/smokeOffchain.ts` (in `anthill-backend`, against a backend started with a fresh `DATA_DIR` on port 5098): registers a software passkey, signs in, joins, votes, renames.
+- `npx tsx scripts/diffEngine.ts` (needs `anvil --port 8546 --disable-code-size-limit` and `forge build src/Anthill.sol`): runs random actions against both the contract and the engine and compares every revert and the full storage.
+
+`moveTreeVote(voter, voter)` used to succeed and detach the voter into a self-loop; it now reverts with `A mTV 5`, in both the contract and the engine. Contracts deployed before that fix still have the bug.
+
+### on-chain (CHAIN_MODE=true on the backend)
+
+The frontend no longer connects wallets, so in this mode it can only browse the graph the backend reads from the contract.
+
 To build and test use forge. For local development with backend and frontend deploy the smart contract on anvil with:
 
 anvil --chain-id 1337
