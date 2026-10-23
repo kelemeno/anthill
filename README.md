@@ -20,7 +20,7 @@ This is the repo for the smart contracts.
 
 ### off-chain (default)
 
-The backend holds the tree itself and people sign in with passkeys, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json`; set `SEED=empty` to start with an empty tree.
+The backend holds the trees itself and people sign in with passkeys, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json` (that tree becomes the Commons); set `SEED=empty` to start with an empty one.
 
 ```
 npm run start:dev --prefix anthill-backend   # :5001
@@ -29,13 +29,14 @@ npm start --prefix anthill-frontend          # :5173
 
 What people can do besides the tree actions:
 
-- **Invites**: "Invite someone" in the account menu (or "Copy invite link" on your overview) makes a one-time link (`/invite/<code>`); whoever opens it joins under you, or the nearest free spot below you. `INVITE_ONLY=true` on the backend makes an invite required to join; until then anyone can still join at any free spot. `POST /admin/invites` (with `ADMIN_TOKEN`) makes an invite under any node, for bootstrapping.
+- **Communities**: anyone signed in can start one (`POST /communities`) and becomes the root of its tree; each has its own reputation, invites and polls, while accounts and profiles are shared. Public communities are listed and visible to all; private ones answer 404 to anyone outside them and are joined by invite only. A public one is either open (anyone can take a free spot) or invite-only. Its founder can change the name, description, visibility and join policy. The original tree is the `commons` community; `INVITE_ONLY=true` makes it invite-only until its settings are changed. Everything inside a community is under `/c/<id>/` (graph, history, action, check, invites, polls); the old unscoped paths still answer for the Commons.
+- **Invites**: "Invite someone here" in the account menu (or "Copy invite link" on your overview) makes a one-time link (`/invite/<code>`) to the community you're in; whoever opens it joins under you, or the nearest free spot below you. `POST /admin/invites` (with `ADMIN_TOKEN`, optionally `community` and `under`) makes an invite under any node, for bootstrapping.
 - **Polls** weighted by reputation: an option's weight is the total reputation of its voters; closing a poll freezes the result.
-- **Profiles**: a short bio and a link, shown on your node.
+- **Profiles**: a name, a short bio and a link, shown on your node in every community (renaming changes your name in all of them).
 - **Passkeys and recovery**: you can add passkeys for other devices; each account has a recovery code (shown once, replaced when used) that registers a new passkey if all are lost.
 - Greyed-out actions say why they aren't possible (the backend dry-runs them).
 
-The website (`anthill-frontend`, see its README) is organised around people: You (your standing and next steps), Explore (the tree), Polls, People, and a page per person.
+The website (`anthill-frontend`, see its README) lists your communities at `/`; inside one (`/c/<id>`) it's organised around people: You (your standing and next steps), Explore (the tree), Polls, People, and a page per person.
 
 Backups: `anthill-backend/scripts/backupLog.sh` downloads the log via `GET /admin/log` and keeps 30 daily copies in `~/anthill-backups`; put the backend's `ADMIN_TOKEN` in `~/.anthill-admin-token`.
 
