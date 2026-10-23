@@ -20,7 +20,7 @@ This is the repo for the smart contracts.
 
 ### off-chain (default)
 
-The backend holds the trees itself and people sign in with passkeys, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json` (that tree becomes the Commons); set `SEED=empty` to start with an empty one.
+The backend holds the trees itself and people sign in with passkeys, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json`; that tree becomes the invite-only `demo` community, and the Commons starts empty (its founder, `COMMONS_FOUNDER`, starts its tree). Set `SEED=empty` for no demo.
 
 ```
 npm run start:dev --prefix anthill-backend   # :5001
@@ -29,7 +29,7 @@ npm start --prefix anthill-frontend          # :5173
 
 What people can do besides the tree actions:
 
-- **Communities**: anyone signed in can start one (`POST /communities`) and becomes the root of its tree; each has its own reputation, invites and polls, while accounts and profiles are shared. Public communities are listed and visible to all; private ones answer 404 to anyone outside them and are joined by invite only. A public one is either open (anyone can take a free spot) or invite-only. Its founder can change the name, description, visibility and join policy. The original tree is the `commons` community; `INVITE_ONLY=true` makes it invite-only until its settings are changed. Everything inside a community is under `/c/<id>/` (graph, history, action, check, invites, polls); the old unscoped paths still answer for the Commons.
+- **Communities**: anyone signed in can start one (`POST /communities`) and becomes the root of its tree; each has its own reputation, invites and polls, while accounts and profiles are shared. Public communities are listed and visible to all; private ones answer 404 to anyone outside them and are joined by invite only. A public one is either open (anyone can take a free spot) or invite-only. Its founder can change the name, description, visibility and join policy. The `commons` community is the public one everyone can join; `INVITE_ONLY=true` makes it invite-only until its founder changes that. The original Anthill tree, which was the Commons at first, moved to `demo` (with everything done in it) and the Commons started over empty. Everything inside a community is under `/c/<id>/` (graph, history, action, check, invites, polls); the old unscoped paths answer for the Commons.
 - **Invites**: "Invite someone here" in the account menu (or "Copy invite link" on your overview) makes a one-time link (`/invite/<code>`) to the community you're in; whoever opens it joins under you, or the nearest free spot below you. `POST /admin/invites` (with `ADMIN_TOKEN`, optionally `community` and `under`) makes an invite under any node, for bootstrapping.
 - **Polls** weighted by reputation: an option's weight is the total reputation of its voters; closing a poll freezes the result.
 - **Profiles**: a name, a short bio and a link, shown on your node in every community (renaming changes your name in all of them).
