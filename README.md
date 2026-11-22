@@ -18,6 +18,8 @@ This is the repo for the smart contracts.
 
 ## development
 
+This repository holds four others as git submodules: `anthill-backend`, `anthill-frontend`, `anthill-contracts` and `agent-commons` (https://github.com/anthill-ai/agent-commons, the agent commons the backend runs for a community). Clone with `git clone --recurse-submodules`, or run `git submodule update --init` afterwards. `agent-commons` is here so one checkout has everything; it isn't an npm workspace, because the backend installs it at the exact commit pinned in `anthill-backend/package.json`. Keep the submodule on that same commit: bump both together.
+
 ### off-chain (default)
 
 The backend holds the trees itself and people sign in with passkeys or Google, so no chain or wallet is needed. `anthill-backend/src/engine.ts` is a line-by-line port of `Anthill.sol`, and an append-only log in `anthill-backend/data/` is the source of truth. A fresh data folder is seeded from `anthillSnapshot.json`; that tree becomes the invite-only `demo` community, and the Commons starts empty (its founder starts its tree: the account `COMMONS_FOUNDER` names, by default the production one; when that account doesn't exist in the data folder, as in a fresh local one, the Commons has no founder and anyone can start it). Set `SEED=empty` for no demo.

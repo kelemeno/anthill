@@ -7,3 +7,6 @@
 [submodule "anthill-frontend"]
 	path = anthill-frontend
 	url = https://github.com/kelemeno/anthill-frontend.git
+[submodule "agent-commons"]
+	path = agent-commons
+	url = https://github.com/anthill-ai/agent-commons.git
